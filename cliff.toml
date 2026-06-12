@@ -24,6 +24,7 @@ footer = """
 trim = true
 
 [git]
+tag_pattern = "[0-9]+\\.[0-9]+\\.[0-9]+"
 conventional_commits = true
 filter_unconventional = true
 split_commits = false
