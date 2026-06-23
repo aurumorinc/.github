@@ -64,8 +64,11 @@ jobs:
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git tag v0.0.0
             git push origin v0.0.0
+            echo "CURRENT_VERSION=v0.0.0" >> "$GITHUB_ENV"
           else
             echo "Semver tags already exist. Skipping baseline creation."
+            LATEST_TAG=$(git tag -l 'v*' --sort=-v:refname | head -n 1)
+            echo "CURRENT_VERSION=$LATEST_TAG" >> "$GITHUB_ENV"
           fi
 
       - name: LLM Release Action
@@ -74,6 +77,7 @@ jobs:
         with:
           model: ${{ inputs.model }}
           dry_run: ${{ inputs.dry_run }}
+          current_version: ${{ env.CURRENT_VERSION }}
           context_files: "VERSIONING.md"
           changelog_config: |
             developer:
