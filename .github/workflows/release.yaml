@@ -22,6 +22,18 @@ on:
         required: false
       OPENAI_API_KEY:
         required: false
+  workflow_dispatch:
+    inputs:
+      model:
+        description: 'LiteLLM model to use for release analysis'
+        required: false
+        type: string
+        default: 'gemini/gemini-3.1-flash-lite'
+      dry_run:
+        description: 'Dry run mode (do not commit/tag)'
+        required: false
+        type: boolean
+        default: true
 
 jobs:
   release:
