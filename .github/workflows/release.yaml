@@ -89,7 +89,7 @@ jobs:
           # The action outputs next_version e.g. "v1.2.3". Strip 'v'.
           RAW_VERSION="${{ steps.llm_release.outputs.next_version }}"
           NEW_VERSION="${RAW_VERSION#v}"
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
           
           echo "Will update to version: $NEW_VERSION"
 
