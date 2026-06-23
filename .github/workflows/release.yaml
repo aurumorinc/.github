@@ -105,7 +105,7 @@ jobs:
 
       - name: Bump Version
         if: ${{ !inputs.dry_run }}
-        run: bumpver update --set-version ${{ env.NEW_VERSION }} --no-commit
+        run: bumpver update --set-version ${{ env.NEW_VERSION }} --no-commit --ignore-vcs-tag
 
       - name: Extract Changelog
         run: |
