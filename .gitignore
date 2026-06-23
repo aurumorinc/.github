@@ -1,0 +1,8 @@
+# Agents
+plans/
+
+# Rune
+.rune/*
+!.rune/config
+!.rune/index
+.agents/skills/llm-release-action/modules/llm-release-action
