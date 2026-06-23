@@ -56,14 +56,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install bumpver
 
-      - name: Bootstrap Baseline Tag (0.0.0)
+      - name: Bootstrap Baseline Tag (v0.0.0)
         run: |
           if [ -z "$(git tag)" ]; then
-            echo "No tags found. Creating baseline tag 0.0.0..."
+            echo "No tags found. Creating baseline tag v0.0.0..."
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            git tag 0.0.0
-            git push origin 0.0.0
+            git tag v0.0.0
+            git push origin v0.0.0
           else
             echo "Tags already exist. Skipping baseline creation."
           fi
