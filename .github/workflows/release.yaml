@@ -56,6 +56,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install bumpver
 
+      - name: Bootstrap Baseline Tag (v0.0.0)
+        run: |
+          if [ -z "$(git tag)" ]; then
+            echo "No tags found. Creating baseline tag v0.0.0..."
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git tag v0.0.0
+            git push origin v0.0.0
+          else
+            echo "Tags already exist. Skipping baseline creation."
+          fi
+
       - name: LLM Release Action
         id: llm_release
         uses: nosovj/llm-release-action@v1.4.0
@@ -77,7 +89,7 @@ jobs:
           # The action outputs next_version e.g. "v1.2.3". Strip 'v'.
           RAW_VERSION="${{ steps.llm_release.outputs.next_version }}"
           NEW_VERSION="${RAW_VERSION#v}"
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "NEW_VERSION=$NEW_VERSION" >> "$GITHUB_ENV"
           
           echo "Will update to version: $NEW_VERSION"
 
