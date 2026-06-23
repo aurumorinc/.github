@@ -56,20 +56,33 @@ jobs:
           python -m pip install --upgrade pip
           pip install bumpver
 
-      - name: Bootstrap Baseline Tag (v0.1.0)
+      - name: Bootstrap Baseline Tag
         run: |
-          if [ -z "$(git tag -l 'v*')" ]; then
-            echo "No semver tags found. Creating baseline tag v0.1.0 at the root commit..."
+          LATEST_TAG=$(git tag --sort=-v:refname | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No semver tags found."
+            # Attempt to extract current version from bumpver
+            BUMPVER_CURRENT=$(bumpver show --no-fetch 2>/dev/null | grep "Current Version:" | awk '{print $3}' || true)
+            if [ -n "$BUMPVER_CURRENT" ]; then
+              BASELINE_VERSION="$BUMPVER_CURRENT"
+              echo "Using bumpver current version as baseline: $BASELINE_VERSION"
+            else
+              BASELINE_VERSION="0.1.0"
+              echo "bumpver not configured or failed. Using fallback baseline: $BASELINE_VERSION"
+            fi
+            
+            echo "Creating baseline tag $BASELINE_VERSION at the root commit..."
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             ROOT_COMMIT=$(git rev-list --max-parents=0 HEAD | tail -n 1)
-            git tag v0.1.0 $ROOT_COMMIT
-            git push origin v0.1.0
-            echo "CURRENT_VERSION=v0.1.0" >> "$GITHUB_ENV"
+            git tag "$BASELINE_VERSION" $ROOT_COMMIT
+            git push origin "$BASELINE_VERSION"
+            echo "CURRENT_VERSION=$BASELINE_VERSION" >> "$GITHUB_ENV"
           else
             echo "Semver tags already exist. Skipping baseline creation."
-            LATEST_TAG=$(git tag -l 'v*' --sort=-v:refname | head -n 1)
-            echo "CURRENT_VERSION=$LATEST_TAG" >> "$GITHUB_ENV"
+            # Strip 'v' from LATEST_TAG to ensure we transition to v-less tags
+            CLEAN_TAG="${LATEST_TAG#v}"
+            echo "CURRENT_VERSION=$CLEAN_TAG" >> "$GITHUB_ENV"
           fi
 
       - name: LLM Release Action
@@ -108,7 +121,7 @@ jobs:
         run: |
           # If the file already contains the target version, bumpver will crash with an invariant error (1.0.0 > 1.0.0).
           # We can gracefully skip bumpver if the file's current version already matches NEW_VERSION.
-          if bumpver show | grep -q "Current Version: ${{ env.NEW_VERSION }}"; then
+          if bumpver show --no-fetch | grep -q "Current Version: ${{ env.NEW_VERSION }}"; then
             echo "Files are already at version ${{ env.NEW_VERSION }}. Skipping bumpver."
           else
             bumpver update --set-version ${{ env.NEW_VERSION }} --no-commit --ignore-vcs-tag
