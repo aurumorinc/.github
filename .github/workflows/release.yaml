@@ -1,10 +1,27 @@
-name: Reusable CalVer Release
+name: Semantic Release
 
 on:
   workflow_call:
+    inputs:
+      model:
+        description: 'LiteLLM model to use for release analysis'
+        required: false
+        type: string
+        default: 'gemini/gemini-3.1-flash-lite'
+      dry_run:
+        description: 'Dry run mode (do not commit/tag)'
+        required: false
+        type: boolean
+        default: false
     secrets:
       RELEASE_TOKEN:
         required: true
+      GEMINI_API_KEY:
+        required: false
+      ANTHROPIC_API_KEY:
+        required: false
+      OPENAI_API_KEY:
+        required: false
 
 jobs:
   release:
@@ -20,15 +37,37 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "3.14"
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install bumpver
 
-      - name: Install git-cliff
-        uses: taiki-e/install-action@git-cliff
+      - name: LLM Release Action
+        id: llm_release
+        uses: nosovj/llm-release-action@v1.4.0
+        with:
+          model: ${{ inputs.model }}
+          dry_run: ${{ inputs.dry_run }}
+          context_files: "VERSIONING.md"
+          changelog_config: |
+            developer:
+              preset: developer
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+
+      - name: Extract Version
+        id: extract_version
+        run: |
+          # The action outputs next_version e.g. "v1.2.3". Strip 'v'.
+          RAW_VERSION="${{ steps.llm_release.outputs.next_version }}"
+          NEW_VERSION="${RAW_VERSION#v}"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          
+          echo "Will update to version: $NEW_VERSION"
 
       - name: Configure Git
         run: |
@@ -36,21 +75,18 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Bump Version
-        run: bumpver update --no-commit
+        if: ${{ !inputs.dry_run }}
+        run: bumpver update --set-version ${{ env.NEW_VERSION }} --no-commit
 
-      - name: Extract Version
-        id: extract_version
+      - name: Extract Changelog
         run: |
-          NEW_VERSION=$(grep -m 1 '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
-          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
-
-      - name: Fetch Central cliff.toml
-        run: curl -O https://raw.githubusercontent.com/aurumorinc/.github/main/cliff.toml
-
-      - name: Generate Changelog
-        run: git-cliff --config cliff.toml --tag ${{ env.NEW_VERSION }} -o CHANGELOG.md
+          # The output is a JSON string. We write it to a file then parse it.
+          echo '${{ steps.llm_release.outputs.changelogs }}' > changelogs.json
+          jq -r '.developer.en' changelogs.json > CHANGELOG.md
+          rm changelogs.json
 
       - name: Commit & Push
+        if: ${{ !inputs.dry_run }}
         run: |
           git add -u
           git add CHANGELOG.md
@@ -59,6 +95,7 @@ jobs:
           git push origin main --tags
 
       - name: Create Release
+        if: ${{ !inputs.dry_run }}
         uses: ncipollo/release-action@v1
         with:
           tag: ${{ env.NEW_VERSION }}
