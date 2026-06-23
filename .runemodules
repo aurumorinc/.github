@@ -1,0 +1,3 @@
+[runemodule ".agents/skills/llm-release-action/modules/llm-release-action"]
+	url = https://github.com/nosovj/llm-release-action/tree/master
+	path = .agents/skills/llm-release-action/modules/llm-release-action
