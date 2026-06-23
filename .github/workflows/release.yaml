@@ -105,7 +105,14 @@ jobs:
 
       - name: Bump Version
         if: ${{ !inputs.dry_run }}
-        run: bumpver update --set-version ${{ env.NEW_VERSION }} --no-commit --ignore-vcs-tag
+        run: |
+          # If the file already contains the target version, bumpver will crash with an invariant error (1.0.0 > 1.0.0).
+          # We can gracefully skip bumpver if the file's current version already matches NEW_VERSION.
+          if bumpver show | grep -q "Current Version: ${{ env.NEW_VERSION }}"; then
+            echo "Files are already at version ${{ env.NEW_VERSION }}. Skipping bumpver."
+          else
+            bumpver update --set-version ${{ env.NEW_VERSION }} --no-commit --ignore-vcs-tag
+          fi
 
       - name: Extract Changelog
         run: |
