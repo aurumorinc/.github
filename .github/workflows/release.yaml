@@ -56,15 +56,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install bumpver
 
-      - name: Bootstrap Baseline Tag (v0.0.0)
+      - name: Bootstrap Baseline Tag (v0.1.0)
         run: |
           if [ -z "$(git tag -l 'v*')" ]; then
-            echo "No semver tags found. Creating baseline tag v0.0.0..."
+            echo "No semver tags found. Creating baseline tag v0.1.0 at the root commit..."
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            git tag v0.0.0
-            git push origin v0.0.0
-            echo "CURRENT_VERSION=v0.0.0" >> "$GITHUB_ENV"
+            ROOT_COMMIT=$(git rev-list --max-parents=0 HEAD | tail -n 1)
+            git tag v0.1.0 $ROOT_COMMIT
+            git push origin v0.1.0
+            echo "CURRENT_VERSION=v0.1.0" >> "$GITHUB_ENV"
           else
             echo "Semver tags already exist. Skipping baseline creation."
             LATEST_TAG=$(git tag -l 'v*' --sort=-v:refname | head -n 1)
