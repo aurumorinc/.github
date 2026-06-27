@@ -13,6 +13,11 @@ on:
         required: false
         type: boolean
         default: false
+      versioning:
+        description: 'How to handle VERSIONING.md. "global" (combine global and local) or "workspace" (use local only)'
+        required: false
+        type: string
+        default: 'global'
     secrets:
       RELEASE_TOKEN:
         required: true
@@ -34,6 +39,11 @@ on:
         required: false
         type: boolean
         default: true
+      versioning:
+        description: 'How to handle VERSIONING.md. "global" (combine global and local) or "workspace" (use local only)'
+        required: false
+        type: string
+        default: 'global'
 
 jobs:
   release:
@@ -85,6 +95,42 @@ jobs:
             echo "CURRENT_VERSION=$CLEAN_TAG" >> "$GITHUB_ENV"
           fi
 
+      - name: Fetch Global VERSIONING.md
+        if: ${{ inputs.versioning != 'workspace' }}
+        run: |
+          # Fetch the global VERSIONING.md from the .github repository
+          curl -sH "Authorization: token ${{ secrets.RELEASE_TOKEN != '' && secrets.RELEASE_TOKEN || github.token }}" \
+               -H "Accept: application/vnd.github.v3.raw" \
+               -o GLOBAL_VERSIONING.md \
+               https://api.github.com/repos/${{ github.repository_owner }}/.github/contents/VERSIONING.md || echo "Failed to fetch global VERSIONING.md"
+
+      - name: Prepare Context Files
+        id: prepare_context
+        run: |
+          CONTEXT_FILES=""
+          VERSIONING_MODE="${{ inputs.versioning }}"
+          
+          # Implicit default is global if undefined or empty
+          if [ -z "$VERSIONING_MODE" ]; then
+            VERSIONING_MODE="global"
+          fi
+          
+          if [ "$VERSIONING_MODE" == "workspace" ]; then
+            if [ -f "VERSIONING.md" ]; then
+              CONTEXT_FILES="VERSIONING.md"
+            fi
+          else
+            if [ -f "VERSIONING.md" ] && [ -f "GLOBAL_VERSIONING.md" ]; then
+              CONTEXT_FILES="GLOBAL_VERSIONING.md,VERSIONING.md"
+            elif [ -f "GLOBAL_VERSIONING.md" ]; then
+              CONTEXT_FILES="GLOBAL_VERSIONING.md"
+            elif [ -f "VERSIONING.md" ]; then
+              CONTEXT_FILES="VERSIONING.md"
+            fi
+          fi
+          
+          echo "CONTEXT_FILES=$CONTEXT_FILES" >> "$GITHUB_ENV"
+
       - name: LLM Release Action
         id: llm_release
         uses: nosovj/llm-release-action@v1.4.0
@@ -92,7 +138,7 @@ jobs:
           model: ${{ inputs.model }}
           dry_run: ${{ inputs.dry_run }}
           current_version: ${{ env.CURRENT_VERSION }}
-          context_files: "VERSIONING.md"
+          context_files: ${{ env.CONTEXT_FILES }}
           changelog_config: |
             developer:
               preset: developer
