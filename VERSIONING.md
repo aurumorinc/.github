@@ -30,7 +30,7 @@ The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL 
     
 3.  Once a versioned package has been released, the contents of that version MUST NOT be modified. Any modifications MUST be released as a new version.
     
-4.  Major version zero (0.y.z) is for initial development. Anything MAY change at any time. The public API SHOULD NOT be considered stable. **Automated systems (such as `llm-release-action`) MUST NOT automatically increment the major version from 0.y.z to 1.0.0. Only a user can explicitly move a project to version 1.0.0, no matter the kind of change.**
+4.  Major version zero (0.y.z) is for initial development. Anything MAY change at any time. The public API SHOULD NOT be considered stable. **Automated systems (such as `llm-release-action`) MUST NEVER output a `major` bump type if the current version starts with 0 (e.g., 0.x.x). Even if there are breaking changes, you MUST output `<bump>minor</bump>` instead of `<bump>major</bump>`. Only a user can explicitly move a project to version 1.0.0.**
     
 5.  Version 1.0.0 defines the public API. The way in which the version number is incremented after this release is dependent on this public API and how it changes.
     
