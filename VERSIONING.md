@@ -32,13 +32,13 @@ The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL 
     
 4.  Major version zero (0.y.z) is for initial development. Anything MAY change at any time. The public API SHOULD NOT be considered stable. **Automated systems (such as `llm-release-action`) MUST NEVER output a `major` bump type if the current version starts with 0 (e.g., 0.x.x). Even if there are breaking changes, you MUST output `<bump>minor</bump>` instead of `<bump>major</bump>`. Only a user can explicitly move a project to version 1.0.0.**
     
-5.  Version 1.0.0 defines the public API. The way in which the version number is incremented after this release is dependent on this public API and how it changes.
+5.  Version 1.0.0 defines the public API. The way in which the version number is incremented after this release is dependent on this public API and how it changes. **When a user manually transitions or sets a project version to `1.0.0` (from `0.x.x`), all breaking major changes included in that release define the `1.0.0` baseline API. Automated systems MUST NOT interpret these breaking changes as requiring a bump to `2.0.0`. Major version bumps (e.g., to `2.0.0`) MUST only apply to breaking changes introduced AFTER `1.0.0` has already been established.**
     
 6.  Patch version Z (x.y.Z | x > 0) MUST be incremented if only backward compatible bug fixes are introduced. A bug fix is defined as an internal change that fixes incorrect behavior.
     
 7.  Minor version Y (x.Y.z | x > 0) MUST be incremented if new, backward compatible functionality is introduced to the public API. It MUST be incremented if any public API functionality is marked as deprecated. It MAY be incremented if substantial new functionality or improvements are introduced within the private code. It MAY include patch level changes. Patch version MUST be reset to 0 when minor version is incremented.
     
-8.  Major version X (X.y.z | X > 0) MUST be incremented if any backward incompatible changes are introduced to the public API. It MAY also include minor and patch level changes. Patch and minor versions MUST be reset to 0 when major version is incremented. **Note: A change (addition, modification, or removal) of an environment variable is NOT considered a major (breaking) change.**
+8.  Major version X (X.y.z | X > 0) MUST be incremented if any backward incompatible changes are introduced to the public API. It MAY also include minor and patch level changes. Patch and minor versions MUST be reset to 0 when major version is incremented. **Note: A change (addition, modification, or removal) of an environment variable is NOT considered a major (breaking) change. Breaking changes introduced during the initial `1.0.0` release transition are incorporated directly into `1.0.0` and MUST NOT trigger an additional bump to `2.0.0`.**
     
 9.  A pre-release version MAY be denoted by appending a hyphen and a series of dot separated identifiers immediately following the patch version. Identifiers MUST comprise only ASCII alphanumerics and hyphens \[0-9A-Za-z-\]. Identifiers MUST NOT be empty. Numeric identifiers MUST NOT include leading zeroes. Pre-release versions have a lower precedence than the associated normal version. A pre-release version indicates that the version is unstable and might not satisfy the intended compatibility requirements as denoted by its associated normal version. Examples: 1.0.0-alpha, 1.0.0-alpha.1, 1.0.0-0.3.7, 1.0.0-x.7.z.92, 1.0.0-x-y-z.--.
     
@@ -157,6 +157,10 @@ The simplest thing to do is start your initial development release at 0.1.0 and 
 ### How do I know when to release 1.0.0?
 
 If your software is being used in production, it should probably already be 1.0.0. If you have a stable API on which users have come to depend, you should be 1.0.0. If you’re worrying a lot about backward compatibility, you should probably already be 1.0.0.
+
+### What happens to breaking changes when manually transitioning from 0.x.x to 1.0.0?
+
+When a project transitions from `0.x.x` to `1.0.0` (or when a user manually sets the target version to `1.0.0`), all breaking changes in that release cycle are incorporated directly into `1.0.0` to establish the initial stable public API baseline. Automated systems MUST NOT bump the release to `2.0.0` due to those breaking changes. Version `2.0.0` is strictly reserved for backward-incompatible changes introduced in releases *following* `1.0.0`.
 
 ### Doesn’t this discourage rapid development and fast iteration?
 
