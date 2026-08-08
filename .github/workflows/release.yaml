@@ -133,7 +133,7 @@ jobs:
 
       - name: LLM Release Action
         id: llm_release
-        uses: nosovj/llm-release-action@v1.4.0
+        uses: ./images/llm-action-release
         with:
           model: ${{ inputs.model }}
           dry_run: ${{ inputs.dry_run }}
