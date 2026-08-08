@@ -10,16 +10,14 @@ description: Provides specialized context, rules, and tools for implementing, co
 llm-release-action/
 ├── assets
 ├── modules
-│   └── llm-release-action (See AST Map below)
+│   └── llm-release-action (https://github.com/nosovj/llm-release-action)
 ├── references
 ├── scripts
 └── SKILL.md
 ```
 
-> **Agent Instructions:** The AST maps below provide a high-level overview of the `modules/` directory. Note that the complete repository source code is available within the `modules/` folder. You can and should use your file reading tools to access the actual source code within `modules/` for complete details, implementation logic, and context beyond what the AST map provides.
-
-### AST Map: `modules/llm-release-action`
-
-```python
-Directory: llm-release-action (Use probe search, query, extract, symbols on 'llm-release-action')
-```
+> **Agent Instructions:** The `modules/` directory contains full source code repositories. Probe is configured for this workspace. Use Probe MCP tools to inspect and search code dynamically across target folder paths instead of raw static AST dumps:
+> - `probe search "<query>" [path]` - Search code semantically with Elasticsearch-style syntax.
+> - `probe extract <file>:<line>` - Extract complete AST semantic blocks.
+> - `probe query "<pattern>"` - Perform AST structural pattern matching.
+> - `probe symbols <file>` - List code symbols (functions, classes, constants) in target file.
