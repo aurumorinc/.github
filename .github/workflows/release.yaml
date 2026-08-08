@@ -56,23 +56,13 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN != '' && secrets.RELEASE_TOKEN || github.token }}
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.14"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install bumpver
-
       - name: Bootstrap Baseline Tag
         run: |
           LATEST_TAG=$(git tag --sort=-v:refname | grep -E '^v?[0-9]+\.[0-9]+\.[0-9]+' | head -n 1)
           if [ -z "$LATEST_TAG" ]; then
             echo "No semver tags found."
-            # Attempt to extract current version from bumpver
-            BUMPVER_CURRENT=$(bumpver show --no-fetch 2>/dev/null | grep "Current Version:" | awk '{print $3}' || true)
+            # Attempt to extract current version from bumpver via container
+            BUMPVER_CURRENT=$(docker run --rm -v "${PWD}:/github/workspace" -w /github/workspace --entrypoint bumpver ghcr.io/aurumorinc/llm-action-release:latest show --no-fetch 2>/dev/null | grep "Current Version:" | awk '{print $3}' || true)
             if [ -n "$BUMPVER_CURRENT" ]; then
               BASELINE_VERSION="$BUMPVER_CURRENT"
               echo "Using bumpver current version as baseline: $BASELINE_VERSION"
@@ -133,7 +123,7 @@ jobs:
 
       - name: LLM Release Action
         id: llm_release
-        uses: ./images/llm-action-release
+        uses: aurumorinc/.github/images/llm-action-release@main
         with:
           model: ${{ inputs.model }}
           dry_run: ${{ inputs.dry_run }}
@@ -167,10 +157,10 @@ jobs:
         run: |
           # If the file already contains the target version, bumpver will crash with an invariant error (1.0.0 > 1.0.0).
           # We can gracefully skip bumpver if the file's current version already matches NEW_VERSION.
-          if bumpver show --no-fetch | grep -q "Current Version: ${{ env.NEW_VERSION }}"; then
+          if docker run --rm -v "${PWD}:/github/workspace" -w /github/workspace --entrypoint bumpver ghcr.io/aurumorinc/llm-action-release:latest show --no-fetch | grep -q "Current Version: ${{ env.NEW_VERSION }}"; then
             echo "Files are already at version ${{ env.NEW_VERSION }}. Skipping bumpver."
           else
-            bumpver update --set-version ${{ env.NEW_VERSION }} --no-commit --ignore-vcs-tag
+            docker run --rm -v "${PWD}:/github/workspace" -w /github/workspace --entrypoint bumpver ghcr.io/aurumorinc/llm-action-release:latest update --set-version ${{ env.NEW_VERSION }} --no-commit --ignore-vcs-tag
           fi
 
       - name: Extract Changelog
