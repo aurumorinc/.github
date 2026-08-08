@@ -48,8 +48,6 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     if: "!startsWith(github.event.head_commit.message, 'chore: release')"
     steps:
       - name: Checkout
