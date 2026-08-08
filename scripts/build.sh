@@ -17,6 +17,6 @@ if [ ! -f "$SCRIPT_PATH" ]; then
     exit 1
 fi
 
-# Execute the specific build script for the IMAGE
+# Execute the specific build script for the image
 chmod +x "$SCRIPT_PATH" || true
-./$SCRIPT_PATH "$TAG"
+bash ./$SCRIPT_PATH "$TAG"

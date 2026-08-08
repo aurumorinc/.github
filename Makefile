@@ -5,17 +5,17 @@ IMAGE ?= llm-action-release
 
 help:
 	@echo "Available commands:"
-	@echo "  make build TAG=latest  - Build the llm-action-release Docker image"
-	@echo "  make test TAG=latest   - Run dgoss tests on the llm-action-release image"
-	@echo "  make push TAG=latest   - Push image to GHCR"
-	@echo "  make clean TAG=latest  - Remove local image"
-	@echo "  make all TAG=latest    - Build and test the image"
+	@echo "  make build IMAGE=llm-action-release TAG=latest  - Build the Docker image"
+	@echo "  make test IMAGE=llm-action-release TAG=latest   - Run dgoss tests on the Docker image"
+	@echo "  make push IMAGE=llm-action-release TAG=latest   - Push image to GHCR"
+	@echo "  make clean IMAGE=llm-action-release TAG=latest  - Remove local image"
+	@echo "  make all IMAGE=llm-action-release TAG=latest    - Build and test the image"
 
 build:
-	./scripts/build.sh $(IMAGE) $(TAG)
+	bash ./scripts/build.sh $(IMAGE) $(TAG)
 
 test:
-	./scripts/test.sh $(IMAGE) $(TAG)
+	bash ./scripts/test.sh $(IMAGE) $(TAG)
 
 push:
 	docker push ghcr.io/aurumorinc/$(IMAGE):$(TAG)

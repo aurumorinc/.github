@@ -20,7 +20,7 @@ on:
       - 'Makefile'
       - '.github/workflows/build-llm-release-action.yaml'
   schedule:
-    - cron: '0 3 * * 0' # Default weekly build on Sundays at 03:00 UTC
+    - cron: '0 3 * * 0' # Default weekly build on Sundays at 03:00 UTC (customizable per image)
   workflow_call:
     inputs:
       tag:
@@ -60,13 +60,13 @@ jobs:
 
       - name: Build Image
         run: |
-          make build FLAVOR=llm-action-release TAG=${{ inputs.tag || 'latest' }}
+          make build IMAGE=llm-action-release TAG=${{ inputs.tag || 'latest' }}
 
       - name: Test Image with Goss
         run: |
-          make test FLAVOR=llm-action-release TAG=${{ inputs.tag || 'latest' }}
+          make test IMAGE=llm-action-release TAG=${{ inputs.tag || 'latest' }}
 
       - name: Push Image
         if: github.event_name != 'pull_request'
         run: |
-          make push FLAVOR=llm-action-release TAG=${{ inputs.tag || 'latest' }}
+          make push IMAGE=llm-action-release TAG=${{ inputs.tag || 'latest' }}
