@@ -1,24 +1,6 @@
 name: Build LLM Release Action Image
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - 'v*'
-    paths:
-      - 'images/llm-action-release/**'
-      - 'scripts/**'
-      - 'Makefile'
-      - '.github/workflows/build-llm-release-action.yaml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'images/llm-action-release/**'
-      - 'scripts/**'
-      - 'Makefile'
-      - '.github/workflows/build-llm-release-action.yaml'
   schedule:
     - cron: '0 3 * * 0' # Default weekly build on Sundays at 03:00 UTC (customizable per image)
   workflow_call:
