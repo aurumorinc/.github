@@ -29,6 +29,10 @@ command:
     exec: "curl --version"
     exit-status: 0
 
+  check_bumpver:
+    exec: "bumpver --help"
+    exit-status: 0
+
   test_litellm_import:
     exec: "python3 -c 'import litellm'"
     exit-status: 0

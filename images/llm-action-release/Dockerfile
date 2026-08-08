@@ -19,7 +19,7 @@ WORKDIR /action
 
 # Fetch source code directly from upstream release tag at build time
 RUN git clone --depth 1 --branch ${ACTION_REF} https://github.com/nosovj/llm-release-action.git /tmp/llm-release-action \
-    && pip install --no-cache-dir -r /tmp/llm-release-action/src/requirements.txt \
+    && pip install --no-cache-dir -r /tmp/llm-release-action/src/requirements.txt bumpver \
     && cp -r /tmp/llm-release-action/src /action/src \
     && rm -rf /tmp/llm-release-action
 
