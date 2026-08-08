@@ -21,15 +21,17 @@ BIN_DIR="./.bin"
 mkdir -p "$BIN_DIR"
 export PATH="$BIN_DIR:$PATH"
 
+GOSS_VERSION="v0.4.8"
+
 if ! command -v goss >/dev/null 2>&1; then
-    echo "⬇️ Downloading goss..."
-    curl -sL https://github.com/goss-org/goss/releases/latest/download/goss-linux-amd64 -o "$BIN_DIR/goss"
+    echo "⬇️ Downloading goss ${GOSS_VERSION}..."
+    curl -fsSL "https://github.com/goss-org/goss/releases/download/${GOSS_VERSION}/goss-linux-amd64" -o "$BIN_DIR/goss"
     chmod +rx "$BIN_DIR/goss"
 fi
 
 if ! command -v dgoss >/dev/null 2>&1; then
-    echo "⬇️ Downloading dgoss..."
-    curl -sL https://github.com/goss-org/goss/releases/latest/download/dgoss -o "$BIN_DIR/dgoss"
+    echo "⬇️ Downloading dgoss ${GOSS_VERSION}..."
+    curl -fsSL "https://github.com/goss-org/goss/releases/download/${GOSS_VERSION}/dgoss" -o "$BIN_DIR/dgoss"
     chmod +rx "$BIN_DIR/dgoss"
 fi
 
