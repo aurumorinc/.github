@@ -1,0 +1,48 @@
+file:
+  /action/entrypoint.sh:
+    exists: true
+    filetype: file
+    mode: "0755"
+  /action/src/analyze.py:
+    exists: true
+    filetype: file
+  /action/requirements.txt:
+    exists: true
+    filetype: file
+
+command:
+  check_python_version:
+    exec: "python3 --version"
+    exit-status: 0
+    stdout:
+      - "Python 3.14"
+
+  check_git:
+    exec: "git --version"
+    exit-status: 0
+
+  check_jq:
+    exec: "jq --version"
+    exit-status: 0
+
+  check_curl:
+    exec: "curl --version"
+    exit-status: 0
+
+  test_litellm_import:
+    exec: "python3 -c 'import litellm'"
+    exit-status: 0
+
+  test_boto3_import:
+    exec: "python3 -c 'import boto3'"
+    exit-status: 0
+
+  test_pydantic_import:
+    exec: "python3 -c 'import pydantic'"
+    exit-status: 0
+
+  test_core_imports:
+    exec: "python3 -c 'import yaml, langcodes, jinja2, regex, pathspec, unidiff; print(\"Imports OK\")'"
+    exit-status: 0
+    stdout:
+      - "Imports OK"
