@@ -6,7 +6,7 @@ file:
   /action/src/analyze.py:
     exists: true
     filetype: file
-  /action/requirements.txt:
+  /action/src/requirements.txt:
     exists: true
     filetype: file
 
